@@ -30,6 +30,9 @@
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.tbx_APIJSON = new System.Windows.Forms.TextBox();
+            this.lbl_Val_TargetStatus = new System.Windows.Forms.Label();
+            this.lbl_Val_Source_Status = new System.Windows.Forms.Label();
             this.lbl_Source_Status = new System.Windows.Forms.Label();
             this.lbl_TargetStatus = new System.Windows.Forms.Label();
             this.btn_Sync = new System.Windows.Forms.Button();
@@ -40,9 +43,6 @@
             this.lstTables = new System.Windows.Forms.ListBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.lbx_msg = new System.Windows.Forms.ListBox();
-            this.lbl_Val_Source_Status = new System.Windows.Forms.Label();
-            this.lbl_Val_TargetStatus = new System.Windows.Forms.Label();
-            this.tbx_APIJSON = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.groupBox5.SuspendLayout();
@@ -79,6 +79,33 @@
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "動作";
             // 
+            // tbx_APIJSON
+            // 
+            this.tbx_APIJSON.Location = new System.Drawing.Point(3, 196);
+            this.tbx_APIJSON.Name = "tbx_APIJSON";
+            this.tbx_APIJSON.Size = new System.Drawing.Size(225, 22);
+            this.tbx_APIJSON.TabIndex = 7;
+            // 
+            // lbl_Val_TargetStatus
+            // 
+            this.lbl_Val_TargetStatus.AutoSize = true;
+            this.lbl_Val_TargetStatus.ForeColor = System.Drawing.Color.Red;
+            this.lbl_Val_TargetStatus.Location = new System.Drawing.Point(90, 63);
+            this.lbl_Val_TargetStatus.Name = "lbl_Val_TargetStatus";
+            this.lbl_Val_TargetStatus.Size = new System.Drawing.Size(41, 12);
+            this.lbl_Val_TargetStatus.TabIndex = 6;
+            this.lbl_Val_TargetStatus.Text = "未連線";
+            // 
+            // lbl_Val_Source_Status
+            // 
+            this.lbl_Val_Source_Status.AutoSize = true;
+            this.lbl_Val_Source_Status.ForeColor = System.Drawing.Color.Red;
+            this.lbl_Val_Source_Status.Location = new System.Drawing.Point(90, 40);
+            this.lbl_Val_Source_Status.Name = "lbl_Val_Source_Status";
+            this.lbl_Val_Source_Status.Size = new System.Drawing.Size(41, 12);
+            this.lbl_Val_Source_Status.TabIndex = 5;
+            this.lbl_Val_Source_Status.Text = "未連線";
+            // 
             // lbl_Source_Status
             // 
             this.lbl_Source_Status.AutoSize = true;
@@ -109,7 +136,7 @@
             // 
             // btn_ConnectTest
             // 
-            this.btn_ConnectTest.Location = new System.Drawing.Point(82, 93);
+            this.btn_ConnectTest.Location = new System.Drawing.Point(71, 93);
             this.btn_ConnectTest.Name = "btn_ConnectTest";
             this.btn_ConnectTest.Size = new System.Drawing.Size(75, 37);
             this.btn_ConnectTest.TabIndex = 2;
@@ -178,33 +205,6 @@
             this.lbx_msg.Name = "lbx_msg";
             this.lbx_msg.Size = new System.Drawing.Size(794, 184);
             this.lbx_msg.TabIndex = 0;
-            // 
-            // lbl_Val_Source_Status
-            // 
-            this.lbl_Val_Source_Status.AutoSize = true;
-            this.lbl_Val_Source_Status.ForeColor = System.Drawing.Color.Red;
-            this.lbl_Val_Source_Status.Location = new System.Drawing.Point(90, 40);
-            this.lbl_Val_Source_Status.Name = "lbl_Val_Source_Status";
-            this.lbl_Val_Source_Status.Size = new System.Drawing.Size(41, 12);
-            this.lbl_Val_Source_Status.TabIndex = 5;
-            this.lbl_Val_Source_Status.Text = "未連線";
-            // 
-            // lbl_Val_TargetStatus
-            // 
-            this.lbl_Val_TargetStatus.AutoSize = true;
-            this.lbl_Val_TargetStatus.ForeColor = System.Drawing.Color.Red;
-            this.lbl_Val_TargetStatus.Location = new System.Drawing.Point(90, 63);
-            this.lbl_Val_TargetStatus.Name = "lbl_Val_TargetStatus";
-            this.lbl_Val_TargetStatus.Size = new System.Drawing.Size(41, 12);
-            this.lbl_Val_TargetStatus.TabIndex = 6;
-            this.lbl_Val_TargetStatus.Text = "未連線";
-            // 
-            // tbx_APIJSON
-            // 
-            this.tbx_APIJSON.Location = new System.Drawing.Point(3, 196);
-            this.tbx_APIJSON.Name = "tbx_APIJSON";
-            this.tbx_APIJSON.Size = new System.Drawing.Size(225, 22);
-            this.tbx_APIJSON.TabIndex = 7;
             // 
             // Form1
             // 
