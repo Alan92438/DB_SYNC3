@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+[Table("maintain")]
 /// <summary>
 /// 維修派工
 /// </summary>
 public partial class maintain
 {
+    /// <summary>
+    /// 修改時間
+    /// </summary>
+    [Key, Column(Order = 0)]
+    public DateTime? m_date { get; set; }
     /// <summary>
     /// 維修單號
     /// </summary>
@@ -149,7 +157,7 @@ public partial class maintain
     /// <summary>
     /// 修改時間
     /// </summary>
-    public DateTime? m_date { get; set; }
+    //public DateTime? m_date { get; set; }
 
     /// <summary>
     /// 修改人員

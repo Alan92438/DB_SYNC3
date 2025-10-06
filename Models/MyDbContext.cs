@@ -16,5 +16,19 @@ namespace DB_SYNC3.Models
         public DbSet<custom> custom { get; set; }
         public DbSet<comm> Comms { get; set; }
         public DbSet<maintain> maintain { get; set; }
+
+        /// <summary>
+        /// 沒有PK的小程式解決方式
+        /// </summary>
+        /// <param name="modelBuilder"></param>
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<custom>().HasKey(c => new { c.m_date, c.name });
+            modelBuilder.Entity<comm>().HasKey(c => new { c.m_date, c.address });
+            modelBuilder.Entity<maintain>().HasKey(m => new { m.m_date});
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

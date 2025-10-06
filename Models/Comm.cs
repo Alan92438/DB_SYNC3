@@ -6,6 +6,9 @@ namespace DB_SYNC3
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
+    /// <summary>
+    /// 社區資料表
+    /// </summary>
     [Table("comm")]
     public partial class comm
     {
@@ -567,10 +570,10 @@ namespace DB_SYNC3
         /// <summary>
         /// 社區ID
         /// </summary>
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int CommId { get; set; }
+        //[Key]
+        //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        //public int CommId { get; set; }
 
-        public int CommunityHostId { get; set; }
+        //public int CommunityHostId { get; set; }
     }
 }

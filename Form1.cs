@@ -31,11 +31,11 @@ namespace DB_SYNC3
         }
 
         /// <summary>
-        /// 測試連線
+        /// 測試本機連線
         /// </summary>
         /// <param name="connStr"></param>
         /// <returns></returns>
-        private bool TestConnection(string connStr)
+        private bool TestLocal_Connection(string connStr)
         {
             messageRecord("連線中");
 
@@ -49,6 +49,7 @@ namespace DB_SYNC3
                     lbl_Val_Source_Status.Text = "已連線";
                     lbl_Val_Source_Status.ForeColor = Color.Green;
 
+                
                     messageRecord("本機連線成功");
 
                     GetLocalDB();
@@ -74,7 +75,7 @@ namespace DB_SYNC3
         public void messageRecord(string message)
         {
             string datePrefix = DateTime.Now.ToString("yyyy/MM/dd HH:mm") + " ";
-            lbx_msg.Items.Add(datePrefix);
+            lbx_msg.Items.Add("●"+datePrefix);
             // 固定每 40 個字切一行
             for (int i = 0; i < message.Length; i += 40)
             {
@@ -178,22 +179,12 @@ namespace DB_SYNC3
 
         private async  void btn_ConnectTest_Click(object sender, EventArgs e)
         {
-            bool _localDbConnected = TestConnection(sourceConnStr);
-            bool _remoteApiConnected = await GetLastDatetime();
-
-            messageRecord("_localDbConnected：" + _localDbConnected);
-            messageRecord("_remoteApiConnected：" + _remoteApiConnected);
-
-            if (_localDbConnected && _remoteApiConnected)
-            {
-                btn_Sync.Enabled = true;
-                messageRecord("同步按鈕已啟用");
-            }
+            TestConnection();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            TestConnection();
         }
 
         private void btn_Sync_Click(object sender, EventArgs e)
@@ -205,10 +196,24 @@ namespace DB_SYNC3
 
             try
             {
+                string dateStr = "2025-06-06";
+                DateTime lastDate = DateTime.Parse(dateStr);  // C# 先解析
+
+                var tmpCustom = _db.custom.Where(x => x.m_date > lastDate).ToList();
+                messageRecord($"✅ 查詢結果: custom={tmpCustom.Count}");
+
+
+                var tmpComm = _db.Comms.Where(x => x.m_date > lastDate).ToList();
+                messageRecord($"✅ 查詢結果: comm={tmpComm.Count}");
+
+                var tmpMaintain = _db.maintain.Where(x => x.m_date > lastDate).ToList();
+                messageRecord($"✅ 查詢結果: maintain={tmpMaintain.Count}");
+
+
                 messageRecord("--ST取得m_date數量--");
 
-                PostAPI(_lastDate);
-                // PostMultiTableDataAsync(_lastDate);
+                //  PostAPI(_lastDate);
+                PostMultiTableDataAsync(_lastDate);
             }
             catch (Exception ex)
             {
@@ -217,80 +222,111 @@ namespace DB_SYNC3
                                  + $"InnerException: {ex.InnerException?.Message}\n\n"
                                  + $"StackTrace:\n{ex.StackTrace}";
 
-                MessageBox.Show(fullError, "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                tbx_APIJSON.Text += fullError ;
                 messageRecord(fullError);
             }
         }
- 
+
         public async Task PostMultiTableDataAsync(DateTime? lastDate)
         {
             messageRecord("--ST PostMultiTableDataAsync--" + lastDate);
-            // 1️⃣ 查詢各資料表
-            messageRecord("--ST 查詢各資料表--"  );
 
-            //var tmpTask = Task.Run(() => _db.custom.Where(x => x.m_date > lastDate).ToList());
-            //var tmpMaintainTask = Task.Run(() => _db.maintain.Where(x => x.m_date > lastDate).ToList());
-            //var tmpCommTask = Task.Run(() => _db.Comms.Where(x => x.m_date > lastDate).ToList());
+            // 1️⃣ 檢查資料庫連線
+            try
+            {
+                if (!_db.Database.Exists())
+                {
+                    messageRecord("❌ 資料庫不存在或無法連線");
+                    return;
+                }
+                messageRecord("✅ _db.Database.Exists() = true");
+            }
+            catch (Exception ex)
+            {
+                messageRecord("❌ 資料庫檢查失敗：" + ex.Message);
+                return;
+            }
 
-            //await Task.WhenAll(tmpTask, tmpMaintainTask, tmpCommTask);
+            // 2️⃣ 查詢各資料表
+            messageRecord("--ST 查詢各資料表--");
 
-            var tmp = _db.custom.Where(x => x.m_date > lastDate).ToList(); //tmpTask.Result;
-            messageRecord("--ST 查詢各資料表--"+ tmp.Count());
-            var tmp_maintain = _db.maintain.Where(x => x.m_date > lastDate).ToList();  //tmpMaintainTask.Result;
-            messageRecord("--ST 查詢各資料表--" + tmp_maintain.Count());
-            var tmp_comm = _db.Comms.Where(x => x.m_date > lastDate).ToList();  //tmpCommTask.Result;
-            messageRecord("--ST 查詢各資料表--" + tmp_comm.Count());
+            List<custom> tmpCustom = null;
+            List<maintain> tmpMaintain = null;
+            List<comm> tmpComm = null;
 
-            messageRecord($"要更新資料統計 custom={tmp.Count}, maintain={tmp_maintain.Count}, comm={tmp_comm.Count}");
+            try
+            {
+             
+                tmpCustom = _db.custom.Where(x => x.m_date > lastDate).ToList();
+                messageRecord($"✅ 查詢結果: custom={tmpCustom.Count}");
 
-            // 2️⃣ 組成封裝物件
+                tmpComm = _db.Comms.Where(x => x.m_date > lastDate).ToList();
+                messageRecord($"✅ 查詢結果: comm={tmpComm.Count}");
+
+                tmpMaintain = _db.maintain.Where(x => x.m_date > lastDate).ToList();
+                messageRecord($"✅ 查詢結果: maintain={tmpMaintain.Count}");
+
+            }
+            catch (Exception ex)
+            {
+                messageRecord("❌ 查詢資料表失敗：" + ex.Message);
+                tbx_APIJSON.Text = tbx_APIJSON.Text  + ex.Message + ex.InnerException.Message;
+                return;
+            }
+
+            // 3️⃣ 組成封裝物件
             messageRecord("--ST 組成封裝物件--");
             var payload = new SyncDataDto
             {
-                CustomList = tmp,
-                maintain = tmp_maintain,
-                comm = tmp_comm
+                CustomList = tmpCustom,
+                maintain = tmpMaintain,
+                comm = tmpComm
             };
 
-            // 3️⃣ JSON 序列化設定
+            // 4️⃣ JSON 序列化設定
             messageRecord("--ST JSON 序列化設定--");
             var options = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
             };
-
-            // 4️⃣ 建立 HttpClient
-            messageRecord("--ST 建立 HttpClient--");
             var json = JsonSerializer.Serialize(payload, options);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             // 5️⃣ 發送 POST
-            messageRecord("--ST 發送 POST--");
-            var httpClient = new HttpClient();
-
-            var response = await httpClient.PostAsync("https://communitynet.renthouse.app/api/syncdata", content);
-
-            // 6️⃣ 回應檢查
-            messageRecord("--ST 回應檢查--");
-            if (response.IsSuccessStatusCode)
+            messageRecord("--ST 建立 HttpClient 並發送 POST--");
+            try
             {
-                Console.WriteLine("✅ 多資料表資料已成功送出");
+                using (var httpClient = new HttpClient())
+                {
+                    var response = await httpClient.PostAsync("https://communitynet.renthouse.app/api/syncdata", content);
+
+                    // 6️⃣ 回應檢查
+                    messageRecord("--ST 回應檢查--");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        messageRecord("✅ 多資料表資料已成功送出");
+                    }
+                    else
+                    {
+                        var error = await response.Content.ReadAsStringAsync();
+                        messageRecord($"❌ 發送失敗: {response.StatusCode} / {error}");
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine($"❌ 發送失敗: {response.StatusCode}");
-                var error = await response.Content.ReadAsStringAsync();
-                messageRecord("--error--" + error);
-                Console.WriteLine(error);
+                messageRecord("❌ 發送 POST 失敗：" + ex.Message);
             }
         }
+
+
         public async Task PostAPI(DateTime? lastDate)
         {
             var tmp = _db.custom
                 .Where(x => x.m_date > lastDate)
                 .ToList();
-            lst_Target.Items.Add("要更新資料統計" + tmp.Count());
+            lst_Target.Items.Add("要更新資料統計=" + tmp.Count());
             messageRecord("要更新資料統計" + tmp.Count());
 
 
@@ -373,7 +409,23 @@ namespace DB_SYNC3
         {
             return string.Join(":", parts.Select(p => string.IsNullOrWhiteSpace(p) ? "00" : p));
         }
+        /// <summary>
+        /// 測試連線
+        /// </summary>
+        public async void TestConnection()
+        {
+            bool _localDbConnected = TestLocal_Connection(sourceConnStr);
+            bool _remoteApiConnected = await GetLastDatetime();
 
+            messageRecord("_localDbConnected：" + _localDbConnected);
+            messageRecord("_remoteApiConnected：" + _remoteApiConnected);
+
+            if (_localDbConnected && _remoteApiConnected)
+            {
+                btn_Sync.Enabled = true;
+                messageRecord("同步按鈕已啟用");
+            }
+        }
         public class CustomDto
         {
             public DateTime? startDate { get; set; }

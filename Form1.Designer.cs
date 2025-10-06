@@ -81,9 +81,10 @@
             // 
             // tbx_APIJSON
             // 
-            this.tbx_APIJSON.Location = new System.Drawing.Point(3, 196);
+            this.tbx_APIJSON.Location = new System.Drawing.Point(3, 137);
+            this.tbx_APIJSON.Multiline = true;
             this.tbx_APIJSON.Name = "tbx_APIJSON";
-            this.tbx_APIJSON.Size = new System.Drawing.Size(225, 22);
+            this.tbx_APIJSON.Size = new System.Drawing.Size(225, 81);
             this.tbx_APIJSON.TabIndex = 7;
             // 
             // lbl_Val_TargetStatus
@@ -126,7 +127,7 @@
             // 
             // btn_Sync
             // 
-            this.btn_Sync.Location = new System.Drawing.Point(82, 136);
+            this.btn_Sync.Location = new System.Drawing.Point(92, 93);
             this.btn_Sync.Name = "btn_Sync";
             this.btn_Sync.Size = new System.Drawing.Size(75, 38);
             this.btn_Sync.TabIndex = 1;
@@ -136,7 +137,7 @@
             // 
             // btn_ConnectTest
             // 
-            this.btn_ConnectTest.Location = new System.Drawing.Point(82, 93);
+            this.btn_ConnectTest.Location = new System.Drawing.Point(8, 94);
             this.btn_ConnectTest.Name = "btn_ConnectTest";
             this.btn_ConnectTest.Size = new System.Drawing.Size(75, 37);
             this.btn_ConnectTest.TabIndex = 2;
