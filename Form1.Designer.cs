@@ -136,7 +136,7 @@
             // 
             // btn_ConnectTest
             // 
-            this.btn_ConnectTest.Location = new System.Drawing.Point(71, 93);
+            this.btn_ConnectTest.Location = new System.Drawing.Point(82, 93);
             this.btn_ConnectTest.Name = "btn_ConnectTest";
             this.btn_ConnectTest.Size = new System.Drawing.Size(75, 37);
             this.btn_ConnectTest.TabIndex = 2;
