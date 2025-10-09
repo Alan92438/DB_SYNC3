@@ -1,6 +1,6 @@
 ﻿namespace DB_SYNC3
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// 設計工具所需的變數。
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.tbx_APIJSON = new System.Windows.Forms.TextBox();
@@ -74,17 +75,17 @@
             this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox6.Location = new System.Drawing.Point(252, 18);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(229, 224);
+            this.groupBox6.Size = new System.Drawing.Size(284, 224);
             this.groupBox6.TabIndex = 2;
             this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "動作";
+            this.groupBox6.Text = "Action";
             // 
             // tbx_APIJSON
             // 
             this.tbx_APIJSON.Location = new System.Drawing.Point(3, 137);
             this.tbx_APIJSON.Multiline = true;
             this.tbx_APIJSON.Name = "tbx_APIJSON";
-            this.tbx_APIJSON.Size = new System.Drawing.Size(225, 81);
+            this.tbx_APIJSON.Size = new System.Drawing.Size(281, 81);
             this.tbx_APIJSON.TabIndex = 7;
             // 
             // lbl_Val_TargetStatus
@@ -93,9 +94,9 @@
             this.lbl_Val_TargetStatus.ForeColor = System.Drawing.Color.Red;
             this.lbl_Val_TargetStatus.Location = new System.Drawing.Point(90, 63);
             this.lbl_Val_TargetStatus.Name = "lbl_Val_TargetStatus";
-            this.lbl_Val_TargetStatus.Size = new System.Drawing.Size(41, 12);
+            this.lbl_Val_TargetStatus.Size = new System.Drawing.Size(71, 12);
             this.lbl_Val_TargetStatus.TabIndex = 6;
-            this.lbl_Val_TargetStatus.Text = "未連線";
+            this.lbl_Val_TargetStatus.Text = "Disconnection";
             // 
             // lbl_Val_Source_Status
             // 
@@ -103,27 +104,27 @@
             this.lbl_Val_Source_Status.ForeColor = System.Drawing.Color.Red;
             this.lbl_Val_Source_Status.Location = new System.Drawing.Point(90, 40);
             this.lbl_Val_Source_Status.Name = "lbl_Val_Source_Status";
-            this.lbl_Val_Source_Status.Size = new System.Drawing.Size(41, 12);
+            this.lbl_Val_Source_Status.Size = new System.Drawing.Size(71, 12);
             this.lbl_Val_Source_Status.TabIndex = 5;
-            this.lbl_Val_Source_Status.Text = "未連線";
+            this.lbl_Val_Source_Status.Text = "Disconnection";
             // 
             // lbl_Source_Status
             // 
             this.lbl_Source_Status.AutoSize = true;
             this.lbl_Source_Status.Location = new System.Drawing.Point(6, 40);
             this.lbl_Source_Status.Name = "lbl_Source_Status";
-            this.lbl_Source_Status.Size = new System.Drawing.Size(77, 12);
+            this.lbl_Source_Status.Size = new System.Drawing.Size(56, 12);
             this.lbl_Source_Status.TabIndex = 4;
-            this.lbl_Source_Status.Text = "來源資料庫：";
+            this.lbl_Source_Status.Text = "Source DB";
             // 
             // lbl_TargetStatus
             // 
             this.lbl_TargetStatus.AutoSize = true;
             this.lbl_TargetStatus.Location = new System.Drawing.Point(6, 64);
             this.lbl_TargetStatus.Name = "lbl_TargetStatus";
-            this.lbl_TargetStatus.Size = new System.Drawing.Size(77, 12);
+            this.lbl_TargetStatus.Size = new System.Drawing.Size(54, 12);
             this.lbl_TargetStatus.TabIndex = 3;
-            this.lbl_TargetStatus.Text = "目的資料庫：";
+            this.lbl_TargetStatus.Text = "Target DB";
             // 
             // btn_Sync
             // 
@@ -131,7 +132,7 @@
             this.btn_Sync.Name = "btn_Sync";
             this.btn_Sync.Size = new System.Drawing.Size(75, 38);
             this.btn_Sync.TabIndex = 1;
-            this.btn_Sync.Text = ">>同步>>";
+            this.btn_Sync.Text = ">>Sync>>";
             this.btn_Sync.UseVisualStyleBackColor = true;
             this.btn_Sync.Click += new System.EventHandler(this.btn_Sync_Click);
             // 
@@ -141,19 +142,19 @@
             this.btn_ConnectTest.Name = "btn_ConnectTest";
             this.btn_ConnectTest.Size = new System.Drawing.Size(75, 37);
             this.btn_ConnectTest.TabIndex = 2;
-            this.btn_ConnectTest.Text = "測試連線";
+            this.btn_ConnectTest.Text = "Test Connection";
             this.btn_ConnectTest.Click += new System.EventHandler(this.btn_ConnectTest_Click);
             // 
             // groupBox5
             // 
             this.groupBox5.Controls.Add(this.lst_Target);
             this.groupBox5.Dock = System.Windows.Forms.DockStyle.Right;
-            this.groupBox5.Location = new System.Drawing.Point(481, 18);
+            this.groupBox5.Location = new System.Drawing.Point(536, 18);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(316, 224);
+            this.groupBox5.Size = new System.Drawing.Size(261, 224);
             this.groupBox5.TabIndex = 1;
             this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "目的地";
+            this.groupBox5.Text = "Target";
             // 
             // lst_Target
             // 
@@ -162,7 +163,7 @@
             this.lst_Target.ItemHeight = 12;
             this.lst_Target.Location = new System.Drawing.Point(3, 18);
             this.lst_Target.Name = "lst_Target";
-            this.lst_Target.Size = new System.Drawing.Size(310, 203);
+            this.lst_Target.Size = new System.Drawing.Size(255, 203);
             this.lst_Target.TabIndex = 0;
             // 
             // groupBox4
@@ -174,7 +175,7 @@
             this.groupBox4.Size = new System.Drawing.Size(249, 224);
             this.groupBox4.TabIndex = 0;
             this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "來源地";
+            this.groupBox4.Text = "Source";
             // 
             // lstTables
             // 
@@ -195,7 +196,7 @@
             this.groupBox2.Size = new System.Drawing.Size(800, 205);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "訊息";
+            this.groupBox2.Text = "Message";
             // 
             // lbx_msg
             // 
@@ -207,15 +208,16 @@
             this.lbx_msg.Size = new System.Drawing.Size(794, 184);
             this.lbx_msg.TabIndex = 0;
             // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.Name = "Form1";
-            this.Text = "資料界接軟體";
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "MainForm";
+            this.Text = "Main | Axon — Delivering Intelligence from Bintafy to Communities";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);

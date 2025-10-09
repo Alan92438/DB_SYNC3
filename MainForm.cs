@@ -19,12 +19,12 @@ using System.Xml.Linq;
 
 namespace DB_SYNC3
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         string sourceConnStr = "Server=localhost\\SQLEXPRESS;Database=CMS;User Id=sa;Password=Magical9070;";
         private MyDbContext _db;
         private DateTime? _lastDate;
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
             _db = new MyDbContext();
@@ -101,14 +101,19 @@ namespace DB_SYNC3
                 // 取得資料表清單
                 DataTable DB = conn.GetSchema("Tables");
                 // custom 在最上方
-                var customTables = DB.Rows.Cast<DataRow>()
-                    .Where(r => r["TABLE_NAME"].ToString().Equals("custom", StringComparison.OrdinalIgnoreCase))
+                // 假設要篩選包含 "custom" 或 "comm" 或 "maintain" 的表
+                string[] keywords = { "custom", "comm", "maintain" };
+
+                var matchedTables = DB.Rows.Cast<DataRow>()
+                    .Where(r => r["TABLE_NAME"] != DBNull.Value &&
+                                keywords.Any(k => r["TABLE_NAME"].ToString()
+                                                    .IndexOf(k, StringComparison.OrdinalIgnoreCase) >= 0))
                     .ToList();
 
-                if (customTables.Any())
+                if (matchedTables.Any())
                 {
                     lstTables.Items.Add("--更新資料表--");
-                    foreach (var row in customTables)
+                    foreach (var row in matchedTables)
                     {
                         string schema = row["TABLE_SCHEMA"].ToString();
                         string tableName = row["TABLE_NAME"].ToString();
@@ -117,21 +122,21 @@ namespace DB_SYNC3
                 }
 
                 // 其他資料表
-                var otherTables = DB.Rows.Cast<DataRow>()
-                    .Where(r => !r["TABLE_NAME"].ToString().Equals("custom", StringComparison.OrdinalIgnoreCase))
-                    .OrderBy(r => r["TABLE_NAME"].ToString()) // 排序比較美觀
-                    .ToList();
+                //var otherTables = DB.Rows.Cast<DataRow>()
+                //    .Where(r => !r["TABLE_NAME"].ToString().Equals("custom", StringComparison.OrdinalIgnoreCase))
+                //    .OrderBy(r => r["TABLE_NAME"].ToString()) // 排序比較美觀
+                //    .ToList();
 
-                if (otherTables.Any())
-                {
-                    lstTables.Items.Add("--其他資料表--");
-                    foreach (var row in otherTables)
-                    {
-                        string schema = row["TABLE_SCHEMA"].ToString();
-                        string tableName = row["TABLE_NAME"].ToString();
-                        lstTables.Items.Add($"{schema}.{tableName}");
-                    }
-                }
+                //if (otherTables.Any())
+                //{
+                //    lstTables.Items.Add("--其他資料表--");
+                //    foreach (var row in otherTables)
+                //    {
+                //        string schema = row["TABLE_SCHEMA"].ToString();
+                //        string tableName = row["TABLE_NAME"].ToString();
+                //        lstTables.Items.Add($"{schema}.{tableName}");
+                //    }
+                //}
 
 
             }
@@ -283,43 +288,85 @@ namespace DB_SYNC3
                 comm = tmpComm
             };
 
-            // 4️⃣ JSON 序列化設定
-            messageRecord("--ST JSON 序列化設定--");
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-            };
-            var json = JsonSerializer.Serialize(payload, options);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            UploadInBatches(payload, 5); //一批處理幾位
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Dto">來源資料</param>
+        /// <param name="batchSize">一次處理幾筆param>
+        /// <returns></returns>
+        async Task UploadInBatches(SyncDataDto Dto , int batchSize)
+        {
+            Dto.CustomList = Dto.CustomList != null ? Dto.CustomList : new List<custom>();
+            Dto.maintain = Dto.maintain != null ? Dto.maintain : new List<maintain>();
+            Dto.comm = Dto.comm != null ? Dto.comm : new List<comm>();
 
-            // 5️⃣ 發送 POST
-            messageRecord("--ST 建立 HttpClient 並發送 POST--");
-            try
+
+            var total = Math.Max(Math.Max(Dto.CustomList.Count, Dto.maintain.Count), Dto.comm.Count);
+            var totalBatches = (int)Math.Ceiling((double)total / batchSize);
+           // totalBatches = 1; //分幾批處理
+            for (int i = 0; i < totalBatches; i++)
             {
-                using (var httpClient = new HttpClient())
+                // 分批取出
+                var batchCustom = Dto.CustomList.Skip(i * batchSize).Take(batchSize).ToList();
+                var batchMaintain = Dto.maintain.Skip(i * batchSize).Take(batchSize).ToList();
+                var batchComm = Dto.comm.Skip(i * batchSize).Take(batchSize).ToList();
+
+                var payload = new SyncDataDto
                 {
-                    var response = await httpClient.PostAsync("https://communitynet.renthouse.app/api/syncdata", content);
+                    CustomList = batchCustom,
+                    maintain = batchMaintain,
+                    comm = batchComm
+                };
 
-                    // 6️⃣ 回應檢查
-                    messageRecord("--ST 回應檢查--");
-                    if (response.IsSuccessStatusCode)
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                };
+                options.Converters.Add(new DateTimeToDateOnlyConverter());
+            
+                var json = JsonSerializer.Serialize(payload, options);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                // 顯示真正的 JSON
+                tbx_APIJSON.Text += "content_tmp JSON: " + await content.ReadAsStringAsync();
+              
+
+                messageRecord($"🚀 傳送第 {i + 1}/{totalBatches} 批...");
+                var jsonString = await content.ReadAsStringAsync();
+                tbx_APIJSON.Text += "content_tmp JSON: " + jsonString;
+                try
+                {
+                    using (var httpClient = new HttpClient())
                     {
-                        messageRecord("✅ 多資料表資料已成功送出");
-                    }
-                    else
-                    {
-                        var error = await response.Content.ReadAsStringAsync();
-                        messageRecord($"❌ 發送失敗: {response.StatusCode} / {error}");
+                        var response = await httpClient.PostAsync("https://communitynet.renthouse.app/api/syncdata/main_syncdata", content);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            messageRecord($"    ✅ 第 {i + 1}/{totalBatches} 批傳送成功");
+                        }
+                        else
+                        {
+                            var error = await response.Content.ReadAsStringAsync();
+                            messageRecord($"    ❌ 第 {i + 1}/{totalBatches} 批失敗: {response.StatusCode} / {error}");
+                            tbx_APIJSON.Text += error;
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                messageRecord("❌ 發送 POST 失敗：" + ex.Message);
+                catch (Exception ex)
+                {
+
+                    var error = $"    ❌ 第 {i + 1}/{totalBatches} 批發送錯誤: {ex.Message}";
+                    messageRecord(error);
+                    tbx_APIJSON.Text += error;
+                }
+
+                // 避免連線被阻擋，可稍作延遲
+                await Task.Delay(500);
             }
         }
-
 
         public async Task PostAPI(DateTime? lastDate)
         {
