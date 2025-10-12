@@ -9,12 +9,15 @@ using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using static System.Data.Entity.Infrastructure.Design.Executor;
 
 
 namespace DB_SYNC3
@@ -24,6 +27,9 @@ namespace DB_SYNC3
         string sourceConnStr = "Server=localhost\\SQLEXPRESS;Database=CMS;User Id=sa;Password=Magical9070;";
         private MyDbContext _db;
         private DateTime? _lastDate;
+        bool _isSorting = false;
+        private string lastSortedColumn = "";
+        private bool sortAscending = true;
         public MainForm()
         {
             InitializeComponent();
@@ -96,6 +102,20 @@ namespace DB_SYNC3
 
             using (SqlConnection conn = new SqlConnection(sourceConnStr))
             {
+
+                //取得所有社區清單
+                var communities = _db.Comms.ToList();
+                foreach(comm tt in communities)
+                {
+                    var key = $"{tt.ano}_{tt.cno}";
+                    var value = $"{tt.ano}{tt.cno}_{tt.cname}";
+
+                    clb_communies.Items.Add(new KeyValuePair<string, string>(key, value));
+                    lstTables.Items.Add(value);
+                }
+                clb_communies.DisplayMember = "Value"; // 顯示的文字
+                clb_communies.ValueMember = "Key";     // 內部的實際值
+                return;
                 conn.Open();
 
                 // 取得資料表清單
@@ -191,7 +211,11 @@ namespace DB_SYNC3
         {
             TestConnection();
         }
-
+        /// <summary>
+        /// 開始同步
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btn_Sync_Click(object sender, EventArgs e)
         {
             lst_Target.Items.Clear();
@@ -504,7 +528,197 @@ namespace DB_SYNC3
             public string mac5 { get; set; }
             public string mac6 { get; set; }
         }
+        /// <summary>
+        /// 選擇社區
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void lstTables_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+        /// <summary>
+        /// 選擇社區 顯示IP 清單
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void clb_communies_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //選擇項目後 如何顯示對應的 IP清單
+            if (clb_communies.SelectedItem == null)
+                return;
+
+            // 取得目前選中的項目名稱
+            string[] selectedCommunity = clb_communies.SelectedItem.ToString().Split(',');
+
+            // 根據項目名稱查詢對應的 IP 清單（這裡示範用字典或資料表）
+              List<string> ipList = GetIpListByCommunity(selectedCommunity[0]);
 
 
+            if (ipList == null || ipList.Count == 0)
+            {
+                tbx_APIJSON.Text = $"社區：{selectedCommunity} 無對應 IP 清單";
+                return;
+            }
+
+            // 顯示在 TextBox（每行一個 IP）
+            tbx_APIJSON.Text = string.Join(Environment.NewLine, ipList);
+        }
+
+        // 模擬查詢 IP 清單的方法
+        private List<string> GetIpListByCommunity(string community)
+        {
+            // 你可以改成實際查 DB 或呼叫
+            community = community.Replace("[", "").Replace("]", "").Replace(" ", "");
+            var PK = community.Split('_');
+            var pkParts = community.Split('_');
+            if (pkParts.Length != 2)
+                return new List<string>(); // 格式不正確時避免例外
+
+            string ano = pkParts[0];
+            string cno = pkParts[1];
+            //string cust = pkParts[2];
+
+            var rawList = _db.custom
+                .Where(x => x.use_kind == 1)
+                .Where(x => x.ano == ano && x.cno == cno)
+                .OrderBy(x => x.ano)
+                .OrderBy(x => x.cno)
+                .Select(x => new
+                {
+                    x.name, 
+                    ip1 = x.ip11+ "."+ x.ip12 + "." + x.ip13 + "." + x.ip14 ,
+                    x.setdate,
+                    x.startdate ,
+                    x.enddate,
+                    x.stopdate ,
+                    x.adate  ,
+                    x.addn ,
+                    x.pdate1 ,
+                    x.pdate2 })
+                .ToList();
+
+            var tmp = rawList
+           
+                      .Select(x => new
+                      {
+                          姓名 = HideMiddle(x.name),
+                          ip1 = x.ip1,
+                          裝機日 = x.setdate,
+                          起算日 = x.startdate,
+                          到期日 = x.enddate,
+                          退租日期 = x.stopdate,
+                          暫開通日期 = x.adate,
+                          暫開通日數 = x.addn,
+                          暫停起始日 = x.pdate1,
+                          暫停終止日 = x.pdate2
+                      }).ToList();
+            dgv_APIJSON.DataSource = tmp;
+            return null;
+        }
+        private string HideMiddle(string name)
+        {
+            if (string.IsNullOrEmpty(name) )
+                return name;
+            else if( name.Length == 2)
+            {
+                return name[0] + "*"  ;
+            }
+            // 保留第一和最後一個字，中間以空白取代
+            return name[0] + " * " + name[name.Length - 1];
+
+        }
+
+        /// <summary>
+        /// 排序功能
+        /// </summary>
+        private void SortCheckedListBox()
+                {
+                    var checkedItems = new List<object>();
+                    var uncheckedItems = new List<object>();
+                    _isSorting = true;
+                    foreach (var item in clb_communies.Items)
+                    {
+                        if (clb_communies.CheckedItems.Contains(item))
+                            checkedItems.Add(item);
+                        else
+                            uncheckedItems.Add(item);
+                    }
+
+                    clb_communies.Items.Clear();
+
+                    foreach (var item in checkedItems)
+                    {
+                        int idx = clb_communies.Items.Add(item);
+                        clb_communies.SetItemChecked(idx, true);
+                    }
+
+                    foreach (var item in uncheckedItems.OrderBy(x => x.ToString()))
+                    {
+                        clb_communies.Items.Add(item);
+                    }
+                    _isSorting = false;
+                }
+        /// <summary>
+        /// 勾選項目變化
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void clb_communies_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (_isSorting) return; // 正在排序時跳過
+
+            this.BeginInvoke((MethodInvoker)delegate {
+                SortCheckedListBox();
+            });
+
+            try
+            {
+                foreach (KeyValuePair<string, string> kv in clb_communies.CheckedItems)
+                {
+                    // MessageBox.Show($"勾選：{kv.Value}, ID={kv.Key}");
+                }
+                // 用 BeginInvoke 延後執行，等勾選狀態真的更新完
+                this.BeginInvoke((MethodInvoker)delegate {
+                    SortCheckedListBox();
+                });
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"error" + ex);
+            }
+        }
+
+        private void dgv_APIJSON_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            string columnName = dgv_APIJSON.Columns[e.ColumnIndex].DataPropertyName;
+            if (string.IsNullOrEmpty(columnName))
+                return;
+
+            // 如果點同一欄，切換排序方向
+            if (lastSortedColumn == columnName)
+                sortAscending = !sortAscending;
+            else
+                sortAscending = true;
+
+            lastSortedColumn = columnName;
+
+            // 取目前資料來源
+            var list = dgv_APIJSON.DataSource as IEnumerable<dynamic>;
+            if (list == null) return;
+
+            // 使用 LINQ 重新排序
+            var sorted = sortAscending
+                ? list.OrderBy(x => GetPropertyValue(x, columnName)).ToList()
+                : list.OrderByDescending(x => GetPropertyValue(x, columnName)).ToList();
+
+            dgv_APIJSON.DataSource = sorted;
+        }
+        // 小工具：用反射取屬性值
+        private object GetPropertyValue(object obj, string propertyName)
+        {
+            return obj.GetType().GetProperty(propertyName)?.GetValue(obj, null);
+        }
     }
 }

@@ -31,6 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tbx_APIJSON = new System.Windows.Forms.TextBox();
             this.lbl_Val_TargetStatus = new System.Windows.Forms.Label();
             this.lbl_Val_Source_Status = new System.Windows.Forms.Label();
@@ -41,14 +42,20 @@
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.lst_Target = new System.Windows.Forms.ListBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.clb_communies = new System.Windows.Forms.CheckedListBox();
             this.lstTables = new System.Windows.Forms.ListBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.lbx_msg = new System.Windows.Forms.ListBox();
+            this.dgv_APIJSON = new System.Windows.Forms.DataGridView();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
             this.groupBox6.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_APIJSON)).BeginInit();
+            this.groupBox7.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -59,13 +66,13 @@
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(800, 245);
+            this.groupBox1.Size = new System.Drawing.Size(800, 237);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             // 
             // groupBox6
             // 
-            this.groupBox6.Controls.Add(this.tbx_APIJSON);
+            this.groupBox6.Controls.Add(this.groupBox3);
             this.groupBox6.Controls.Add(this.lbl_Val_TargetStatus);
             this.groupBox6.Controls.Add(this.lbl_Val_Source_Status);
             this.groupBox6.Controls.Add(this.lbl_Source_Status);
@@ -75,24 +82,36 @@
             this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox6.Location = new System.Drawing.Point(252, 18);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(284, 224);
+            this.groupBox6.Size = new System.Drawing.Size(284, 216);
             this.groupBox6.TabIndex = 2;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Action";
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.tbx_APIJSON);
+            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.groupBox3.Location = new System.Drawing.Point(3, 113);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(278, 100);
+            this.groupBox3.TabIndex = 8;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "IP 清單";
+            // 
             // tbx_APIJSON
             // 
-            this.tbx_APIJSON.Location = new System.Drawing.Point(3, 137);
+            this.tbx_APIJSON.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbx_APIJSON.Location = new System.Drawing.Point(3, 18);
             this.tbx_APIJSON.Multiline = true;
             this.tbx_APIJSON.Name = "tbx_APIJSON";
-            this.tbx_APIJSON.Size = new System.Drawing.Size(281, 81);
+            this.tbx_APIJSON.Size = new System.Drawing.Size(272, 79);
             this.tbx_APIJSON.TabIndex = 7;
             // 
             // lbl_Val_TargetStatus
             // 
             this.lbl_Val_TargetStatus.AutoSize = true;
             this.lbl_Val_TargetStatus.ForeColor = System.Drawing.Color.Red;
-            this.lbl_Val_TargetStatus.Location = new System.Drawing.Point(90, 63);
+            this.lbl_Val_TargetStatus.Location = new System.Drawing.Point(110, 44);
             this.lbl_Val_TargetStatus.Name = "lbl_Val_TargetStatus";
             this.lbl_Val_TargetStatus.Size = new System.Drawing.Size(71, 12);
             this.lbl_Val_TargetStatus.TabIndex = 6;
@@ -102,7 +121,7 @@
             // 
             this.lbl_Val_Source_Status.AutoSize = true;
             this.lbl_Val_Source_Status.ForeColor = System.Drawing.Color.Red;
-            this.lbl_Val_Source_Status.Location = new System.Drawing.Point(90, 40);
+            this.lbl_Val_Source_Status.Location = new System.Drawing.Point(110, 21);
             this.lbl_Val_Source_Status.Name = "lbl_Val_Source_Status";
             this.lbl_Val_Source_Status.Size = new System.Drawing.Size(71, 12);
             this.lbl_Val_Source_Status.TabIndex = 5;
@@ -111,7 +130,7 @@
             // lbl_Source_Status
             // 
             this.lbl_Source_Status.AutoSize = true;
-            this.lbl_Source_Status.Location = new System.Drawing.Point(6, 40);
+            this.lbl_Source_Status.Location = new System.Drawing.Point(26, 21);
             this.lbl_Source_Status.Name = "lbl_Source_Status";
             this.lbl_Source_Status.Size = new System.Drawing.Size(56, 12);
             this.lbl_Source_Status.TabIndex = 4;
@@ -120,7 +139,7 @@
             // lbl_TargetStatus
             // 
             this.lbl_TargetStatus.AutoSize = true;
-            this.lbl_TargetStatus.Location = new System.Drawing.Point(6, 64);
+            this.lbl_TargetStatus.Location = new System.Drawing.Point(26, 45);
             this.lbl_TargetStatus.Name = "lbl_TargetStatus";
             this.lbl_TargetStatus.Size = new System.Drawing.Size(54, 12);
             this.lbl_TargetStatus.TabIndex = 3;
@@ -128,7 +147,7 @@
             // 
             // btn_Sync
             // 
-            this.btn_Sync.Location = new System.Drawing.Point(92, 93);
+            this.btn_Sync.Location = new System.Drawing.Point(112, 60);
             this.btn_Sync.Name = "btn_Sync";
             this.btn_Sync.Size = new System.Drawing.Size(75, 38);
             this.btn_Sync.TabIndex = 1;
@@ -138,7 +157,7 @@
             // 
             // btn_ConnectTest
             // 
-            this.btn_ConnectTest.Location = new System.Drawing.Point(8, 94);
+            this.btn_ConnectTest.Location = new System.Drawing.Point(28, 60);
             this.btn_ConnectTest.Name = "btn_ConnectTest";
             this.btn_ConnectTest.Size = new System.Drawing.Size(75, 37);
             this.btn_ConnectTest.TabIndex = 2;
@@ -151,7 +170,7 @@
             this.groupBox5.Dock = System.Windows.Forms.DockStyle.Right;
             this.groupBox5.Location = new System.Drawing.Point(536, 18);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(261, 224);
+            this.groupBox5.Size = new System.Drawing.Size(261, 216);
             this.groupBox5.TabIndex = 1;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Target";
@@ -163,37 +182,50 @@
             this.lst_Target.ItemHeight = 12;
             this.lst_Target.Location = new System.Drawing.Point(3, 18);
             this.lst_Target.Name = "lst_Target";
-            this.lst_Target.Size = new System.Drawing.Size(255, 203);
+            this.lst_Target.Size = new System.Drawing.Size(255, 195);
             this.lst_Target.TabIndex = 0;
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.clb_communies);
             this.groupBox4.Controls.Add(this.lstTables);
             this.groupBox4.Dock = System.Windows.Forms.DockStyle.Left;
             this.groupBox4.Location = new System.Drawing.Point(3, 18);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(249, 224);
+            this.groupBox4.Size = new System.Drawing.Size(249, 216);
             this.groupBox4.TabIndex = 0;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Source";
             // 
+            // clb_communies
+            // 
+            this.clb_communies.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.clb_communies.FormattingEnabled = true;
+            this.clb_communies.Location = new System.Drawing.Point(3, 18);
+            this.clb_communies.Name = "clb_communies";
+            this.clb_communies.Size = new System.Drawing.Size(243, 143);
+            this.clb_communies.TabIndex = 9;
+            this.clb_communies.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clb_communies_ItemCheck);
+            this.clb_communies.SelectedIndexChanged += new System.EventHandler(this.clb_communies_SelectedIndexChanged);
+            // 
             // lstTables
             // 
-            this.lstTables.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstTables.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.lstTables.FormattingEnabled = true;
             this.lstTables.ItemHeight = 12;
-            this.lstTables.Location = new System.Drawing.Point(3, 18);
+            this.lstTables.Location = new System.Drawing.Point(3, 161);
             this.lstTables.Name = "lstTables";
-            this.lstTables.Size = new System.Drawing.Size(243, 203);
+            this.lstTables.Size = new System.Drawing.Size(243, 52);
             this.lstTables.TabIndex = 0;
+            this.lstTables.SelectedIndexChanged += new System.EventHandler(this.lstTables_SelectedIndexChanged);
             // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.lbx_msg);
-            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox2.Location = new System.Drawing.Point(0, 245);
+            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.groupBox2.Location = new System.Drawing.Point(0, 483);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(800, 205);
+            this.groupBox2.Size = new System.Drawing.Size(800, 98);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Message";
@@ -205,14 +237,38 @@
             this.lbx_msg.ItemHeight = 12;
             this.lbx_msg.Location = new System.Drawing.Point(3, 18);
             this.lbx_msg.Name = "lbx_msg";
-            this.lbx_msg.Size = new System.Drawing.Size(794, 184);
+            this.lbx_msg.Size = new System.Drawing.Size(794, 77);
             this.lbx_msg.TabIndex = 0;
+            // 
+            // dgv_APIJSON
+            // 
+            this.dgv_APIJSON.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgv_APIJSON.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgv_APIJSON.Location = new System.Drawing.Point(3, 18);
+            this.dgv_APIJSON.Name = "dgv_APIJSON";
+            this.dgv_APIJSON.RowHeadersVisible = false;
+            this.dgv_APIJSON.RowTemplate.Height = 24;
+            this.dgv_APIJSON.Size = new System.Drawing.Size(794, 225);
+            this.dgv_APIJSON.TabIndex = 9;
+            this.dgv_APIJSON.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgv_APIJSON_ColumnHeaderMouseClick);
+            // 
+            // groupBox7
+            // 
+            this.groupBox7.Controls.Add(this.dgv_APIJSON);
+            this.groupBox7.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox7.Location = new System.Drawing.Point(0, 237);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(800, 246);
+            this.groupBox7.TabIndex = 2;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "IP 資料";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(800, 581);
+            this.Controls.Add(this.groupBox7);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -222,9 +278,13 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_APIJSON)).EndInit();
+            this.groupBox7.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -246,6 +306,10 @@
         private System.Windows.Forms.Label lbl_Val_Source_Status;
         private System.Windows.Forms.Label lbl_Val_TargetStatus;
         private System.Windows.Forms.TextBox tbx_APIJSON;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.CheckedListBox clb_communies;
+        private System.Windows.Forms.DataGridView dgv_APIJSON;
+        private System.Windows.Forms.GroupBox groupBox7;
     }
 }
 

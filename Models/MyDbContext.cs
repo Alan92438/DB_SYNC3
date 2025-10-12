@@ -10,12 +10,21 @@ namespace DB_SYNC3.Models
 {
     public class MyDbContext : DbContext
     {
-       // public MyDbContext()
-            //: base(@"Server=.\SQLEXPRESS;Database=CMS;User Id=sa;Password=Magical9070;Trusted_Connection=True;")
-             // : base(@"Server=localhost;Database=RentHouseDb;User Id=sa;Password=sH+a$GTT;Encrypt=True;TrustServerCertificate=True;")  { }
+        // public MyDbContext()
+        //: base(@"Server=.\SQLEXPRESS;Database=CMS;User Id=sa;Password=Magical9070;Trusted_Connection=True;")
+        // : base(@"Server=localhost;Database=RentHouseDb;User Id=sa;Password=sH+a$GTT;Encrypt=True;TrustServerCertificate=True;")  { }
 
         // 建構子指定 App.config 連線字串名稱
+#if DEBUG
+ 
+        public MyDbContext() : base("name=CMS_Dev") { }
+       
+ 
+#else
+ 
         public MyDbContext() : base("name=CMS") { }
+ 
+#endif
 
         public DbSet<memb> memb { get; set; }
         public DbSet<custom> custom { get; set; }
