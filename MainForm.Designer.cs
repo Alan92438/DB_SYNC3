@@ -31,8 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.tbx_APIJSON = new System.Windows.Forms.TextBox();
             this.lbl_Val_TargetStatus = new System.Windows.Forms.Label();
             this.lbl_Val_Source_Status = new System.Windows.Forms.Label();
             this.lbl_Source_Status = new System.Windows.Forms.Label();
@@ -43,14 +41,13 @@
             this.lst_Target = new System.Windows.Forms.ListBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.clb_communies = new System.Windows.Forms.CheckedListBox();
-            this.lstTables = new System.Windows.Forms.ListBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.lbx_msg = new System.Windows.Forms.ListBox();
             this.dgv_APIJSON = new System.Windows.Forms.DataGridView();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.cbb_Status = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.groupBox6.SuspendLayout();
-            this.groupBox3.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -72,7 +69,6 @@
             // 
             // groupBox6
             // 
-            this.groupBox6.Controls.Add(this.groupBox3);
             this.groupBox6.Controls.Add(this.lbl_Val_TargetStatus);
             this.groupBox6.Controls.Add(this.lbl_Val_Source_Status);
             this.groupBox6.Controls.Add(this.lbl_Source_Status);
@@ -86,26 +82,6 @@
             this.groupBox6.TabIndex = 2;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Action";
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.tbx_APIJSON);
-            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox3.Location = new System.Drawing.Point(3, 113);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(278, 100);
-            this.groupBox3.TabIndex = 8;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "IP 清單";
-            // 
-            // tbx_APIJSON
-            // 
-            this.tbx_APIJSON.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbx_APIJSON.Location = new System.Drawing.Point(3, 18);
-            this.tbx_APIJSON.Multiline = true;
-            this.tbx_APIJSON.Name = "tbx_APIJSON";
-            this.tbx_APIJSON.Size = new System.Drawing.Size(272, 79);
-            this.tbx_APIJSON.TabIndex = 7;
             // 
             // lbl_Val_TargetStatus
             // 
@@ -147,17 +123,17 @@
             // 
             // btn_Sync
             // 
-            this.btn_Sync.Location = new System.Drawing.Point(112, 60);
+            this.btn_Sync.Location = new System.Drawing.Point(109, 80);
             this.btn_Sync.Name = "btn_Sync";
             this.btn_Sync.Size = new System.Drawing.Size(75, 38);
             this.btn_Sync.TabIndex = 1;
-            this.btn_Sync.Text = ">>Sync>>";
+            this.btn_Sync.Text = "Sync";
             this.btn_Sync.UseVisualStyleBackColor = true;
             this.btn_Sync.Click += new System.EventHandler(this.btn_Sync_Click);
             // 
             // btn_ConnectTest
             // 
-            this.btn_ConnectTest.Location = new System.Drawing.Point(28, 60);
+            this.btn_ConnectTest.Location = new System.Drawing.Point(28, 80);
             this.btn_ConnectTest.Name = "btn_ConnectTest";
             this.btn_ConnectTest.Size = new System.Drawing.Size(75, 37);
             this.btn_ConnectTest.TabIndex = 2;
@@ -187,8 +163,8 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.cbb_Status);
             this.groupBox4.Controls.Add(this.clb_communies);
-            this.groupBox4.Controls.Add(this.lstTables);
             this.groupBox4.Dock = System.Windows.Forms.DockStyle.Left;
             this.groupBox4.Location = new System.Drawing.Point(3, 18);
             this.groupBox4.Name = "groupBox4";
@@ -199,25 +175,14 @@
             // 
             // clb_communies
             // 
-            this.clb_communies.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.clb_communies.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.clb_communies.FormattingEnabled = true;
-            this.clb_communies.Location = new System.Drawing.Point(3, 18);
+            this.clb_communies.Location = new System.Drawing.Point(3, 56);
             this.clb_communies.Name = "clb_communies";
-            this.clb_communies.Size = new System.Drawing.Size(243, 143);
+            this.clb_communies.Size = new System.Drawing.Size(243, 157);
             this.clb_communies.TabIndex = 9;
             this.clb_communies.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clb_communies_ItemCheck);
             this.clb_communies.SelectedIndexChanged += new System.EventHandler(this.clb_communies_SelectedIndexChanged);
-            // 
-            // lstTables
-            // 
-            this.lstTables.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.lstTables.FormattingEnabled = true;
-            this.lstTables.ItemHeight = 12;
-            this.lstTables.Location = new System.Drawing.Point(3, 161);
-            this.lstTables.Name = "lstTables";
-            this.lstTables.Size = new System.Drawing.Size(243, 52);
-            this.lstTables.TabIndex = 0;
-            this.lstTables.SelectedIndexChanged += new System.EventHandler(this.lstTables_SelectedIndexChanged);
             // 
             // groupBox2
             // 
@@ -261,7 +226,18 @@
             this.groupBox7.Size = new System.Drawing.Size(800, 246);
             this.groupBox7.TabIndex = 2;
             this.groupBox7.TabStop = false;
-            this.groupBox7.Text = "IP 資料";
+            this.groupBox7.Text = "Lan Ip List";
+            // 
+            // cbb_Status
+            // 
+            this.cbb_Status.Dock = System.Windows.Forms.DockStyle.Top;
+            this.cbb_Status.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbb_Status.FormattingEnabled = true;
+            this.cbb_Status.Location = new System.Drawing.Point(3, 18);
+            this.cbb_Status.Name = "cbb_Status";
+            this.cbb_Status.Size = new System.Drawing.Size(243, 20);
+            this.cbb_Status.TabIndex = 10;
+            this.cbb_Status.SelectedIndexChanged += new System.EventHandler(this.cbb_Status_SelectedIndexChanged);
             // 
             // MainForm
             // 
@@ -278,8 +254,6 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -300,16 +274,14 @@
         private System.Windows.Forms.Button btn_Sync;
         private System.Windows.Forms.Button btn_ConnectTest;
         private System.Windows.Forms.ListBox lst_Target;
-        private System.Windows.Forms.ListBox lstTables;
         private System.Windows.Forms.Label lbl_TargetStatus;
         private System.Windows.Forms.Label lbl_Source_Status;
         private System.Windows.Forms.Label lbl_Val_Source_Status;
         private System.Windows.Forms.Label lbl_Val_TargetStatus;
-        private System.Windows.Forms.TextBox tbx_APIJSON;
-        private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.CheckedListBox clb_communies;
         private System.Windows.Forms.DataGridView dgv_APIJSON;
         private System.Windows.Forms.GroupBox groupBox7;
+        private System.Windows.Forms.ComboBox cbb_Status;
     }
 }
 

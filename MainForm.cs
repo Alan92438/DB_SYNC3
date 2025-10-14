@@ -1,4 +1,5 @@
-﻿using DB_SYNC3.Models;
+﻿using DB_SYNC.Models.DTO;
+using DB_SYNC3.Models;
 using DB_SYNC3.Models.DTO;
 using Newtonsoft.Json.Linq;
 using System;
@@ -7,8 +8,10 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Policy;
@@ -30,6 +33,12 @@ namespace DB_SYNC3
         bool _isSorting = false;
         private string lastSortedColumn = "";
         private bool sortAscending = true;
+        private string jsonPath = "checkedItems.json";
+        /// <summary>
+        /// 是否在更新狀態
+        /// </summary>
+        private bool _isUpdating = false;
+
         public MainForm()
         {
             InitializeComponent();
@@ -51,8 +60,8 @@ namespace DB_SYNC3
                 {
                     //conn.Open();
                     _db.Database.Connection.Open();
-                    lbl_Source_Status.Text = "來源資料庫：";
-                    lbl_Val_Source_Status.Text = "已連線";
+                    lbl_Source_Status.Text = "Source DB：";
+                    lbl_Val_Source_Status.Text = "Connected";
                     lbl_Val_Source_Status.ForeColor = Color.Green;
 
                 
@@ -63,8 +72,8 @@ namespace DB_SYNC3
                 }
                 catch (Exception ex)
                 {
-                    lbl_Source_Status.Text = "來源資料庫："  ;
-                    lbl_Val_Source_Status.Text = "連線失敗 ";
+                    lbl_Source_Status.Text = "Source DB：";
+                    lbl_Val_Source_Status.Text = "Connected fail";
                     lbl_Val_Source_Status.ForeColor = Color.Red;
 
                     messageRecord(ex.Message);
@@ -99,69 +108,47 @@ namespace DB_SYNC3
         /// <exception cref="NotImplementedException"></exception>
         private void GetLocalDB()
         {
+            List<CommunityItem> checkedItemsFromJson = new List<CommunityItem>();
 
-            using (SqlConnection conn = new SqlConnection(sourceConnStr))
+            //讀 JSON 勾選狀態
+            if (File.Exists(jsonPath))
             {
-
-                //取得所有社區清單
-                var communities = _db.Comms.ToList();
-                foreach(comm tt in communities)
-                {
-                    var key = $"{tt.ano}_{tt.cno}";
-                    var value = $"{tt.ano}{tt.cno}_{tt.cname}";
-
-                    clb_communies.Items.Add(new KeyValuePair<string, string>(key, value));
-                    lstTables.Items.Add(value);
-                }
-                clb_communies.DisplayMember = "Value"; // 顯示的文字
-                clb_communies.ValueMember = "Key";     // 內部的實際值
-                return;
-                conn.Open();
-
-                // 取得資料表清單
-                DataTable DB = conn.GetSchema("Tables");
-                // custom 在最上方
-                // 假設要篩選包含 "custom" 或 "comm" 或 "maintain" 的表
-                string[] keywords = { "custom", "comm", "maintain" };
-
-                var matchedTables = DB.Rows.Cast<DataRow>()
-                    .Where(r => r["TABLE_NAME"] != DBNull.Value &&
-                                keywords.Any(k => r["TABLE_NAME"].ToString()
-                                                    .IndexOf(k, StringComparison.OrdinalIgnoreCase) >= 0))
-                    .ToList();
-
-                if (matchedTables.Any())
-                {
-                    lstTables.Items.Add("--更新資料表--");
-                    foreach (var row in matchedTables)
-                    {
-                        string schema = row["TABLE_SCHEMA"].ToString();
-                        string tableName = row["TABLE_NAME"].ToString();
-                        lstTables.Items.Add($"{schema}.{tableName}");
-                    }
-                }
-
-                // 其他資料表
-                //var otherTables = DB.Rows.Cast<DataRow>()
-                //    .Where(r => !r["TABLE_NAME"].ToString().Equals("custom", StringComparison.OrdinalIgnoreCase))
-                //    .OrderBy(r => r["TABLE_NAME"].ToString()) // 排序比較美觀
-                //    .ToList();
-
-                //if (otherTables.Any())
-                //{
-                //    lstTables.Items.Add("--其他資料表--");
-                //    foreach (var row in otherTables)
-                //    {
-                //        string schema = row["TABLE_SCHEMA"].ToString();
-                //        string tableName = row["TABLE_NAME"].ToString();
-                //        lstTables.Items.Add($"{schema}.{tableName}");
-                //    }
-                //}
-
-
+                var json = File.ReadAllText(jsonPath);
+                checkedItemsFromJson = JsonSerializer.Deserialize<List<CommunityItem>>(json) ?? new List<CommunityItem>();
+                var tmp = "";
             }
 
+            //1️ 取得所有社區清單
+            var communities = _db.Comms.ToList();
+            foreach (comm tt in communities)
+            {
+                var key = $"{tt.ano}_{tt.cno}";
+                var value = $"{tt.ano}{tt.cno}_{tt.cname}";
+
+                // 嘗試從 JSON 找到對應項目
+                var matched = checkedItemsFromJson.FirstOrDefault(x => x.Code == key);
+                bool isChecked = matched?.Checked ?? false;
+
+                // 建立項目
+                var item = new CommunityItem
+                {
+                    Code = key,
+                    Name = value,
+                    Checked = isChecked
+                };
+
+                int idx = clb_communies.Items.Add(item);
+                clb_communies.SetItemChecked(idx, item.Checked);
+
+                allCommunities.Add(item);
+            }
+            clb_communies.DisplayMember = "Value"; // 顯示的文字
+            clb_communies.ValueMember = "Key";     // 內部的實際值
+
+            RefreshCheckedListBox(allCommunities);
+
         }
+
         /// <summary>
         /// 遠端連線
         /// </summary>
@@ -179,10 +166,10 @@ namespace DB_SYNC3
                     JObject obj = JObject.Parse(response);
                     _lastDate = obj["lastDate"].ToObject<DateTime>();
                     lst_Target.Items.Clear();
-                    lst_Target.Items.Add("最新資料：" + _lastDate);
+                    lst_Target.Items.Add("Last Data：" + _lastDate);
 
-                    lbl_TargetStatus.Text = "目的資料庫：";
-                    lbl_Val_TargetStatus.Text = "已連線";
+                    lbl_TargetStatus.Text = "Target DB：";
+                    lbl_Val_TargetStatus.Text = "Connected";
                     lbl_Val_TargetStatus.ForeColor = Color.Green;
 
                     messageRecord("API 最後日期：" + _lastDate.Value.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -192,11 +179,11 @@ namespace DB_SYNC3
             }
             catch (Exception ex)
             {
-                lbl_TargetStatus.Text = "目的資料庫：";
-                lbl_Val_TargetStatus.Text = "連線失敗";
+                lbl_TargetStatus.Text = "Target DB：";
+                lbl_Val_TargetStatus.Text = "Disconnection";
                 lbl_Val_TargetStatus.ForeColor =Color.Red;
 
-                messageRecord("讀取 API 錯誤: " + ex.Message);
+                messageRecord("API Error: " + ex.Message);
 
                 return false;
             }
@@ -210,7 +197,30 @@ namespace DB_SYNC3
         private void Form1_Load(object sender, EventArgs e)
         {
             TestConnection();
+            ItemIni_cbb_Status();
         }
+
+        private void ItemIni_cbb_Status()
+        {
+            // 清空舊項目
+            cbb_Status.Items.Clear();
+
+            var statusItems = new[]
+               {
+                    new { Text = "全部", Value = 0 },
+                    new { Text = "同步", Value = 1 },
+                    new { Text = "非同步", Value = 2 }
+                };
+
+            cbb_Status.DisplayMember = "Text";
+            cbb_Status.ValueMember = "Value";
+            cbb_Status.DataSource = statusItems;
+            cbb_Status.SelectedIndexChanged += cbb_Status_SelectedIndexChanged;
+
+            // 預設選「全部」
+            cbb_Status.SelectedIndex = 0;
+        }
+
         /// <summary>
         /// 開始同步
         /// </summary>
@@ -219,7 +229,7 @@ namespace DB_SYNC3
         private void btn_Sync_Click(object sender, EventArgs e)
         {
             lst_Target.Items.Clear();
-            lst_Target.Items.Add("最新資料：" + _lastDate);
+            lst_Target.Items.Add("Last Data：" + _lastDate);
 
             string url = "https://communitynet.renthouse.app/api/custom/receive";
 
@@ -243,6 +253,10 @@ namespace DB_SYNC3
 
                 //  PostAPI(_lastDate);
                 PostMultiTableDataAsync(_lastDate);
+
+                //重新測試連線
+                TestConnection();
+
             }
             catch (Exception ex)
             {
@@ -251,7 +265,7 @@ namespace DB_SYNC3
                                  + $"InnerException: {ex.InnerException?.Message}\n\n"
                                  + $"StackTrace:\n{ex.StackTrace}";
 
-                tbx_APIJSON.Text += fullError ;
+                lbx_msg.Text += fullError ;
                 messageRecord(fullError);
             }
         }
@@ -299,7 +313,7 @@ namespace DB_SYNC3
             catch (Exception ex)
             {
                 messageRecord("❌ 查詢資料表失敗：" + ex.Message);
-                tbx_APIJSON.Text = tbx_APIJSON.Text  + ex.Message + ex.InnerException.Message;
+                lbx_msg.Text = lbx_msg.Text  + ex.Message + ex.InnerException.Message;
                 return;
             }
 
@@ -355,12 +369,12 @@ namespace DB_SYNC3
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 // 顯示真正的 JSON
-                tbx_APIJSON.Text += "content_tmp JSON: " + await content.ReadAsStringAsync();
+                lbx_msg.Text += "content_tmp JSON: " + await content.ReadAsStringAsync();
               
 
                 messageRecord($"🚀 傳送第 {i + 1}/{totalBatches} 批...");
                 var jsonString = await content.ReadAsStringAsync();
-                tbx_APIJSON.Text += "content_tmp JSON: " + jsonString;
+                lbx_msg.Text += "content_tmp JSON: " + jsonString;
                 try
                 {
                     using (var httpClient = new HttpClient())
@@ -375,7 +389,7 @@ namespace DB_SYNC3
                         {
                             var error = await response.Content.ReadAsStringAsync();
                             messageRecord($"    ❌ 第 {i + 1}/{totalBatches} 批失敗: {response.StatusCode} / {error}");
-                            tbx_APIJSON.Text += error;
+                            lbx_msg.Text += error;
                         }
                     }
                 }
@@ -384,7 +398,7 @@ namespace DB_SYNC3
 
                     var error = $"    ❌ 第 {i + 1}/{totalBatches} 批發送錯誤: {ex.Message}";
                     messageRecord(error);
-                    tbx_APIJSON.Text += error;
+                    lbx_msg.Text += error;
                 }
 
                 // 避免連線被阻擋，可稍作延遲
@@ -456,7 +470,7 @@ namespace DB_SYNC3
             });
             //檢視更新資料
             lst_Target.Items.Add(json);
-            tbx_APIJSON.Text = json;
+            lbx_msg.Text = json;
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             // 這裡建立 HttpClient 實例
@@ -549,43 +563,57 @@ namespace DB_SYNC3
                 return;
 
             // 取得目前選中的項目名稱
-            string[] selectedCommunity = clb_communies.SelectedItem.ToString().Split(',');
+            string[] selectedCommunity = clb_communies.SelectedItem.ToString().Split('_');
+            string code = "";
+            string name = "";
+            if (clb_communies.SelectedItem is CommunityItem selectedItem)
+            {
+                  code = selectedItem.Code;   // code，例如 "01_004"
+                  name = selectedItem.Name;   // 顯示名稱（例如 "01004_中國江山"）
+
+                Console.WriteLine($"選取的社區代碼：{code}");
+                Console.WriteLine($"選取的社區名稱：{name}");
+            }
 
             // 根據項目名稱查詢對應的 IP 清單（這裡示範用字典或資料表）
-              List<string> ipList = GetIpListByCommunity(selectedCommunity[0]);
-
+            List<CustomerDisplayInfo> ipList = GetIpListByCommunity(code);
 
             if (ipList == null || ipList.Count == 0)
             {
-                tbx_APIJSON.Text = $"社區：{selectedCommunity} 無對應 IP 清單";
+                lbx_msg.Text = $"社區：{selectedCommunity} 無對應 IP 清單";
                 return;
             }
 
-            // 顯示在 TextBox（每行一個 IP）
-            tbx_APIJSON.Text = string.Join(Environment.NewLine, ipList);
+            // 顯示在 TextBox（每行一個人 + IP）
+            var lines = ipList.Select(x => $"{x.會員編號}-{x.姓名} {x.ip1}");
+            lbx_msg.Text = string.Join(Environment.NewLine, lines);
         }
 
         // 模擬查詢 IP 清單的方法
-        private List<string> GetIpListByCommunity(string community)
+        private List<CustomerDisplayInfo> GetIpListByCommunity(string community)
         {
-            // 你可以改成實際查 DB 或呼叫
-            community = community.Replace("[", "").Replace("]", "").Replace(" ", "");
-            var PK = community.Split('_');
+
             var pkParts = community.Split('_');
             if (pkParts.Length != 2)
-                return new List<string>(); // 格式不正確時避免例外
-
+                return new List<CustomerDisplayInfo>(); // 格式不正確時避免例外
+            
+            //string con_no = pkParts[0];
             string ano = pkParts[0];
             string cno = pkParts[1];
             //string cust = pkParts[2];
 
+
+            //找出社區內的會員
             var rawList = _db.custom
                 .Where(x => x.use_kind == 1)
-                .Where(x => x.ano == ano && x.cno == cno)
+                //.Where(x => x.con_no == community)
+                .Where(x => x.ano == ano)
+                .Where(x => x.cno == cno)
                 .OrderBy(x => x.ano)
                 .OrderBy(x => x.cno)
                 .Select(x => new
                 {
+                   memberNo= x.ano + x.cno + x.cust,
                     x.name, 
                     ip1 = x.ip11+ "."+ x.ip12 + "." + x.ip13 + "." + x.ip14 ,
                     x.setdate,
@@ -600,8 +628,9 @@ namespace DB_SYNC3
 
             var tmp = rawList
            
-                      .Select(x => new
+                      .Select(x => new CustomerDisplayInfo
                       {
+                          會員編號 = x.memberNo,
                           姓名 = HideMiddle(x.name),
                           ip1 = x.ip1,
                           裝機日 = x.setdate,
@@ -614,7 +643,7 @@ namespace DB_SYNC3
                           暫停終止日 = x.pdate2
                       }).ToList();
             dgv_APIJSON.DataSource = tmp;
-            return null;
+            return tmp;
         }
         private string HideMiddle(string name)
         {
@@ -633,32 +662,32 @@ namespace DB_SYNC3
         /// 排序功能
         /// </summary>
         private void SortCheckedListBox()
-                {
-                    var checkedItems = new List<object>();
-                    var uncheckedItems = new List<object>();
-                    _isSorting = true;
-                    foreach (var item in clb_communies.Items)
-                    {
-                        if (clb_communies.CheckedItems.Contains(item))
-                            checkedItems.Add(item);
-                        else
-                            uncheckedItems.Add(item);
-                    }
+        {
+            var checkedItems = new List<object>();
+            var uncheckedItems = new List<object>();
+            _isSorting = true;
+            foreach (var item in clb_communies.Items)
+            {
+                if (clb_communies.CheckedItems.Contains(item))
+                    checkedItems.Add(item);
+                else
+                    uncheckedItems.Add(item);
+            }
 
-                    clb_communies.Items.Clear();
+            clb_communies.Items.Clear();
 
-                    foreach (var item in checkedItems)
-                    {
-                        int idx = clb_communies.Items.Add(item);
-                        clb_communies.SetItemChecked(idx, true);
-                    }
+            foreach (var item in checkedItems)
+            {
+                int idx = clb_communies.Items.Add(item);
+                clb_communies.SetItemChecked(idx, true);
+            }
 
-                    foreach (var item in uncheckedItems.OrderBy(x => x.ToString()))
-                    {
-                        clb_communies.Items.Add(item);
-                    }
-                    _isSorting = false;
-                }
+            foreach (var item in uncheckedItems.OrderBy(x => x.ToString()))
+            {
+                clb_communies.Items.Add(item);
+            }
+            _isSorting = false;
+        }
         /// <summary>
         /// 勾選項目變化
         /// </summary>
@@ -666,28 +695,35 @@ namespace DB_SYNC3
         /// <param name="e"></param>
         private void clb_communies_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            if (_isSorting) return; // 正在排序時跳過
+            if (_isUpdating) return; // 防止迴圈
 
-            this.BeginInvoke((MethodInvoker)delegate {
-                SortCheckedListBox();
+            _isUpdating = true; // ⚡ 鎖定
+
+            // 延後執行，確保 CheckedItems 已經更新
+            this.BeginInvoke((MethodInvoker)delegate
+            {
+                var items = clb_communies.Items.Cast<CommunityItem>().ToList();
+
+                for (int i = 0; i < items.Count; i++)
+                {
+                    items[i].Checked = clb_communies.GetItemChecked(i);
+                }
+
+                // 寫入 JSON
+                SaveCheckedItemsToJson(items);
+
+                _isUpdating = false; // ✅ 更新完成，解除鎖定
             });
 
-            try
+        }
+        private void SaveCheckedItemsToJson(List<CommunityItem> items)
+        {
+            var json = JsonSerializer.Serialize(items, new JsonSerializerOptions
             {
-                foreach (KeyValuePair<string, string> kv in clb_communies.CheckedItems)
-                {
-                    // MessageBox.Show($"勾選：{kv.Value}, ID={kv.Key}");
-                }
-                // 用 BeginInvoke 延後執行，等勾選狀態真的更新完
-                this.BeginInvoke((MethodInvoker)delegate {
-                    SortCheckedListBox();
-                });
+                WriteIndented = true
+            });
 
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"error" + ex);
-            }
+            File.WriteAllText(jsonPath, json);
         }
 
         private void dgv_APIJSON_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
@@ -720,5 +756,45 @@ namespace DB_SYNC3
         {
             return obj.GetType().GetProperty(propertyName)?.GetValue(obj, null);
         }
+        private List<CommunityItem> allCommunities = new List<CommunityItem>(); // 全部社區清單
+        private void cbb_Status_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int selected = (int)cbb_Status.SelectedValue;
+
+            List<CommunityItem> filtered = new List<CommunityItem>();
+
+            switch (selected)
+            {
+                case 0: // 全部
+                    filtered = allCommunities;
+                    break;
+
+                case 1: // 同步（Checked = true）
+                    filtered = allCommunities.Where(x => x.Checked).ToList();
+                    break;
+
+                case 2: // 非同步（Checked = false）
+                    filtered = allCommunities.Where(x => !x.Checked).ToList();
+                    break;
+            }
+
+            RefreshCheckedListBox(filtered);
+        }
+        private void RefreshCheckedListBox(List<CommunityItem> list)
+        {
+            _isUpdating = true;
+            clb_communies.Items.Clear();
+
+            foreach (var item in list)
+            {
+                int idx = clb_communies.Items.Add(item);
+                clb_communies.SetItemChecked(idx, item.Checked);
+            }
+
+            clb_communies.DisplayMember = "Value";
+            clb_communies.ValueMember = "Key";
+            _isUpdating = false;
+        }
+
     }
 }
