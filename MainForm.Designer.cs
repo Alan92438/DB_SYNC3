@@ -46,6 +46,7 @@
             this.dgv_APIJSON = new System.Windows.Forms.DataGridView();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.cbb_Status = new System.Windows.Forms.ComboBox();
+            this.lbl_Target = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.groupBox5.SuspendLayout();
@@ -123,9 +124,9 @@
             // 
             // btn_Sync
             // 
-            this.btn_Sync.Location = new System.Drawing.Point(109, 80);
+            this.btn_Sync.Location = new System.Drawing.Point(64, 103);
             this.btn_Sync.Name = "btn_Sync";
-            this.btn_Sync.Size = new System.Drawing.Size(75, 38);
+            this.btn_Sync.Size = new System.Drawing.Size(168, 55);
             this.btn_Sync.TabIndex = 1;
             this.btn_Sync.Text = "Sync";
             this.btn_Sync.UseVisualStyleBackColor = true;
@@ -133,15 +134,16 @@
             // 
             // btn_ConnectTest
             // 
-            this.btn_ConnectTest.Location = new System.Drawing.Point(28, 80);
+            this.btn_ConnectTest.Location = new System.Drawing.Point(187, 21);
             this.btn_ConnectTest.Name = "btn_ConnectTest";
-            this.btn_ConnectTest.Size = new System.Drawing.Size(75, 37);
+            this.btn_ConnectTest.Size = new System.Drawing.Size(86, 37);
             this.btn_ConnectTest.TabIndex = 2;
             this.btn_ConnectTest.Text = "Test Connection";
             this.btn_ConnectTest.Click += new System.EventHandler(this.btn_ConnectTest_Click);
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.lbl_Target);
             this.groupBox5.Controls.Add(this.lst_Target);
             this.groupBox5.Dock = System.Windows.Forms.DockStyle.Right;
             this.groupBox5.Location = new System.Drawing.Point(536, 18);
@@ -153,12 +155,12 @@
             // 
             // lst_Target
             // 
-            this.lst_Target.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lst_Target.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.lst_Target.FormattingEnabled = true;
             this.lst_Target.ItemHeight = 12;
-            this.lst_Target.Location = new System.Drawing.Point(3, 18);
+            this.lst_Target.Location = new System.Drawing.Point(3, 53);
             this.lst_Target.Name = "lst_Target";
-            this.lst_Target.Size = new System.Drawing.Size(255, 195);
+            this.lst_Target.Size = new System.Drawing.Size(255, 160);
             this.lst_Target.TabIndex = 0;
             // 
             // groupBox4
@@ -239,6 +241,15 @@
             this.cbb_Status.TabIndex = 10;
             this.cbb_Status.SelectedIndexChanged += new System.EventHandler(this.cbb_Status_SelectedIndexChanged);
             // 
+            // lbl_Target
+            // 
+            this.lbl_Target.AutoSize = true;
+            this.lbl_Target.Location = new System.Drawing.Point(7, 21);
+            this.lbl_Target.Name = "lbl_Target";
+            this.lbl_Target.Size = new System.Drawing.Size(68, 12);
+            this.lbl_Target.TabIndex = 1;
+            this.lbl_Target.Text = "last Update：";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -255,6 +266,7 @@
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
             this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgv_APIJSON)).EndInit();
@@ -282,6 +294,7 @@
         private System.Windows.Forms.DataGridView dgv_APIJSON;
         private System.Windows.Forms.GroupBox groupBox7;
         private System.Windows.Forms.ComboBox cbb_Status;
+        private System.Windows.Forms.Label lbl_Target;
     }
 }
 

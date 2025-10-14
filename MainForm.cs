@@ -58,16 +58,21 @@ namespace DB_SYNC3
             {
                 try
                 {
-                    //conn.Open();
-                    _db.Database.Connection.Open();
+                    // 開啟資料庫連線
+                    if (_db.Database.Connection.State != ConnectionState.Open)
+                        _db.Database.Connection.Open();
+
+                    // 更新 UI 狀態
                     lbl_Source_Status.Text = "Source DB：";
                     lbl_Val_Source_Status.Text = "Connected";
                     lbl_Val_Source_Status.ForeColor = Color.Green;
 
-                
+                    // 紀錄訊息
                     messageRecord("本機連線成功");
 
+                    // 執行載入本機資料
                     GetLocalDB();
+
                     return true;
                 }
                 catch (Exception ex)
@@ -109,7 +114,7 @@ namespace DB_SYNC3
         private void GetLocalDB()
         {
             List<CommunityItem> checkedItemsFromJson = new List<CommunityItem>();
-
+            clb_communies.Items.Clear();
             //讀 JSON 勾選狀態
             if (File.Exists(jsonPath))
             {
@@ -145,7 +150,7 @@ namespace DB_SYNC3
             clb_communies.DisplayMember = "Value"; // 顯示的文字
             clb_communies.ValueMember = "Key";     // 內部的實際值
 
-            RefreshCheckedListBox(allCommunities);
+            //RefreshCheckedListBox(allCommunities);
 
         }
 
@@ -165,9 +170,9 @@ namespace DB_SYNC3
                     // 解析 JSON
                     JObject obj = JObject.Parse(response);
                     _lastDate = obj["lastDate"].ToObject<DateTime>();
-                    lst_Target.Items.Clear();
-                    lst_Target.Items.Add("Last Data：" + _lastDate);
-
+                    //lst_Target.Items.Clear();
+                    //lst_Target.Items.Add("Last Data：" + _lastDate);
+                    lbl_Target.Text = "last updated = " + _lastDate;
                     lbl_TargetStatus.Text = "Target DB：";
                     lbl_Val_TargetStatus.Text = "Connected";
                     lbl_Val_TargetStatus.ForeColor = Color.Green;
@@ -254,8 +259,8 @@ namespace DB_SYNC3
                 //  PostAPI(_lastDate);
                 PostMultiTableDataAsync(_lastDate);
 
-                //重新測試連線
-                TestConnection();
+                //重新測試連線--會有重複產生社區名單問題
+                //TestConnection();
 
             }
             catch (Exception ex)
@@ -510,6 +515,7 @@ namespace DB_SYNC3
                 btn_Sync.Enabled = true;
                 messageRecord("同步按鈕已啟用");
             }
+            SortCheckedListBox();
         }
         public class CustomDto
         {
@@ -663,6 +669,10 @@ namespace DB_SYNC3
         /// </summary>
         private void SortCheckedListBox()
         {
+
+            if (_isSorting) return;
+            _isSorting = true;
+
             var checkedItems = new List<object>();
             var uncheckedItems = new List<object>();
             _isSorting = true;
@@ -676,12 +686,13 @@ namespace DB_SYNC3
 
             clb_communies.Items.Clear();
 
+            //已勾選
             foreach (var item in checkedItems)
             {
                 int idx = clb_communies.Items.Add(item);
                 clb_communies.SetItemChecked(idx, true);
             }
-
+            //未勾選
             foreach (var item in uncheckedItems.OrderBy(x => x.ToString()))
             {
                 clb_communies.Items.Add(item);
@@ -778,7 +789,7 @@ namespace DB_SYNC3
                     break;
             }
 
-            RefreshCheckedListBox(filtered);
+            //RefreshCheckedListBox(filtered);
         }
         private void RefreshCheckedListBox(List<CommunityItem> list)
         {
