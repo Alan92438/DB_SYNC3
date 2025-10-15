@@ -233,9 +233,6 @@ namespace DB_SYNC3
         /// <param name="e"></param>
         private void btn_Sync_Click(object sender, EventArgs e)
         {
-            lst_Target.Items.Clear();
-            lst_Target.Items.Add("Last Data：" + _lastDate);
-
             string url = "https://communitynet.renthouse.app/api/custom/receive";
 
             try
